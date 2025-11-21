@@ -2,6 +2,9 @@
 
 > Predict epistasis‑aware antigenicity from a single protein sequence and map site‑wise signals onto 3D structure.
 
+
+![Overview of antievo](docs/figs/overview.png)
+
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)](#requirements) [![License](https://img.shields.io/badge/license-MIT-informational.svg)](./LICENSE) [![PRs welcome](https://img.shields.io/badge/PRs-welcome-success.svg)](#contributing)
 
 ---
@@ -331,3 +334,4 @@ cartoon putty
 color byattribute bfactor palette blueswhiteorange reverse false
 cartoon
 ```
+

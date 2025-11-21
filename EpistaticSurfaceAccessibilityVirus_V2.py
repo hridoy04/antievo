@@ -1,6 +1,7 @@
 # %%
 #Load the libraries
 
+
 #!/usr/bin/env python3
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -765,3 +766,27 @@ ax.set_ylabel('Alternative Amino Acid')
 fig.tight_layout()
 fig.savefig(f'{id}_epiant_heatmap.png', dpi=300, bbox_inches='tight')
 plt.close(fig)'''
+
+
+#combining epistatic antigenicity and dms probability for getting the sites with highest/lowest probability 
+# and then the epistatic antigenicity at those sites and later we can use the csv files with pdb file to visualize 
+#in the pymol or chimera (the next code that would help this is in another script now)
+
+
+combined_df = pd.merge(all_dfs, ranked_accessibilities, 
+                       on = ['position', 'ref', 'alt', 'label'], how = 'left')
+
+combined_df = combined_df[['label', 'position', 'ref', 'alt', 'probability', 'significant_antigenicity_median']]
+combined_df.rename(columns={'probability':'aa_change_likelihood', 
+                            'significant_antigenicity_median': 'Epistatic_Antigenicity_Median'
+                            }, inplace=True)
+
+
+#filtering to only get the mutations where ref and alt are different
+combined_df_filtered = combined_df[combined_df['label'].apply(lambda x: x[0] != x[-1])]
+
+combined_df_filtered_high_likelihood = combined_df_filtered.groupby('position').max('aa_change_likelihood').reset_index()
+combined_df_filtered_low_likelihood = combined_df_filtered.groupby('position').min('aa_change_likelihood').reset_index()
+
+combined_df_filtered_high_likelihood.to_csv(id+'_high_likelihood_epistatic_antigenicity.csv', index=False)
+combined_df_filtered_low_likelihood.to_csv(id+'_low_likelihood_epistatic_antigenicity.csv', index=False)

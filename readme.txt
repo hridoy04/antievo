@@ -220,3 +220,114 @@ MIT (or update to your preferred license).
 ## Citation
 
 If this code supports a paper or preprint, add a BibTeX entry here.
+
+---
+
+## 👀 Quick Visuals (Flowcharts, Demo Figs & Overview)
+
+> Download the single‑image overview and place it at `docs/figs/overview.png`.
+>
+> ![Overview](docs/figs/overview.png)
+
+---
+
+### A. One‑Glance Flow
+
+### A. One‑Glance Flow
+
+```mermaid
+graph TD
+    A[User provides Query Sequence
+(+ optional PDB) ] --> B[Align to Reference]
+    B --> C[Epistasis Context
+(pairwise / higher‑order)]
+    B --> D[Surface Accessibility
+(exposure / SASA)]
+    C --> E[Combine Signals →
+Per‑site Antigenicity]
+    D --> E
+    E --> F[Δ vs Reference
+(change likelihood)]
+    E --> G[Per‑site Table (CSV/TSV)]
+    F --> G
+    G --> H[Color Structure (PDB/mmCIF)]
+    H --> I[Visualize in PyMOL/ChimeraX]
+```
+
+### B. What the Outputs Mean
+
+```mermaid
+flowchart LR
+    subgraph Table[Per‑site Table]
+        T1[site/index]
+        T2[ref_aa → query_aa]
+        T3[epistasis_score]
+        T4[accessibility]
+        T5[antigenicity]
+        T6[delta_vs_ref]
+    end
+    subgraph Structure[Colored Structure]
+        S1[Residue color encodes
+antigenicity]
+        S2[B‑factor stores value]
+    end
+    Table -->|map by index/chain| Structure
+```
+
+> **Legend**
+>
+> * Higher color intensity ⇒ higher predicted antigenicity.
+> * Δ vs ref > 0 ⇒ more likely impactful change relative to reference at that site.
+> * Ensure chain/index mapping is correct (use `--chain`/`--offset`).
+
+### C. End‑to‑End (Expanded) — For New Readers
+
+```mermaid
+sequenceDiagram
+    participant U as You
+    participant Q as Query FASTA
+    participant R as Reference FASTA
+    participant S as Structure (PDB)
+    participant AE as antievo
+    participant O as Outputs
+
+    U->>AE: run EpistaticSurfaceAccessibilityVirus_V4.py
+    Q-->>AE: sequence
+    R-->>AE: reference
+    AE->>AE: align & index map
+    AE->>AE: compute epistasis context
+    AE->>AE: add surface accessibility
+    AE->>O: write per‑site table
+    U->>AE: run generate_colored_pdbs.py
+    S-->>AE: PDB/mmCIF
+    O-->>AE: table (antigenicity/Δ)
+    AE->>O: colored structure
+    U->>O: open in PyMOL/ChimeraX
+```
+
+### D. Demo Figures (placeholders)
+
+> Put the following images in `docs/figs/` and they will render here when committed. Replace with real screenshots from your outputs.
+
+| Figure                                                | Description                                                                               |
+| ----------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| ![Per‑site table preview](docs/figs/demo_table.png)   | A few rows highlighting `site`, `ref_aa`, `query_aa`, `antigenicity`, and `delta_vs_ref`. |
+| ![Colored structure](docs/figs/colored_structure.png) | Ribbon view colored by antigenicity (blue→white→red).                                     |
+| ![Δ vs ref barplot](docs/figs/delta_barplot.png)      | Top‑N sites with largest positive Δ.                                                      |
+
+**Tip (PyMOL coloring):**
+
+```bash
+# after loading colored PDB, color by b‑factor in PyMOL
+spectrum b, blue_white_red, minimum=MIN, maximum=MAX
+as cartoon
+cartoon putty
+```
+
+**Tip (ChimeraX coloring):**
+
+```bash
+# use attribute coloring if antigenicity is stored in B‑factor
+color byattribute bfactor palette blueswhiteorange reverse false
+cartoon
+```
